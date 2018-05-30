@@ -74,7 +74,7 @@ namespace BillinSoft
 
         private void button2_Click(object sender, EventArgs e)
         {
-           
+            save();
             
 
             string st = textBox3.Text + textBox1.Text + ".xlsm";
@@ -123,7 +123,7 @@ namespace BillinSoft
         {
             try
             {
-                wrbk = wrbks.Open("C:\\Program Files (x86)\\WC\\BillingSoftSetup\\bill.xlsm");
+                wrbk = wrbks.Open("C:\\Program Files (x86)\\WC\\Setup\\bill.xlsm");
                 wrst = (Microsoft.Office.Interop.Excel.Worksheet)wrbk.Worksheets[1];
             }
 
@@ -181,13 +181,13 @@ namespace BillinSoft
             excel.ActiveWorkbook.SaveCopyAs(st);
             excel.ActiveWorkbook.Saved = true;
 
+
             GC.Collect();
             GC.WaitForPendingFinalizers();
 
             excel.Quit();
 
-            MessageBox.Show("File is Saved in Documents folder");
-
+            
         }
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -203,6 +203,8 @@ namespace BillinSoft
         private void button3_Click(object sender, EventArgs e)
         {
             save();
+            MessageBox.Show("File is Saved in Documents folder");
+
         }
     }
 }
