@@ -27,10 +27,10 @@ namespace BillinSoft
 
             this.MaximizeBox = false;
 
-            excel.Application.Workbooks.Add(true);
-            wrbks = excel.Workbooks;
-
+            
             textBox2.Text = DateTime.Now.ToString("d/M/yyyy");
+
+
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -65,8 +65,46 @@ namespace BillinSoft
             textBox6.Text = "";
             textBox7.Text = "";
             textBox8.Text = "";
+            double famount = 0.0;
 
-            
+            for (int i = 0; i < dataGridView1.Rows.Count; i++)
+            {
+                if (i != dataGridView1.Rows.Count - 1)
+                {
+
+
+                    double q = 0.0;
+                    double r = 0.0;
+                    try
+                    {
+
+                        if (dataGridView1.Rows[i].Cells[dataGridView1.Columns["Qty"].Index].Value.ToString() != "")
+                            q = (Convert.ToDouble(dataGridView1.Rows[i].Cells[dataGridView1.Columns["Qty"].Index].Value));
+
+                        if (dataGridView1.Rows[i].Cells[dataGridView1.Columns["rate"].Index].Value.ToString() != "")
+                            r = (Convert.ToDouble(dataGridView1.Rows[i].Cells[dataGridView1.Columns["rate"].Index].Value));
+
+                    }
+
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Please Enter valid qty and rate");
+                        dataGridView1.Rows.RemoveAt(i);
+
+                    }
+
+                    dataGridView1.Rows[i].Cells[dataGridView1.Columns["amount"].Index].Value = r * q;
+                    famount += Convert.ToDouble(dataGridView1.Rows[i].Cells[dataGridView1.Columns["amount"].Index].Value);
+
+
+                }
+
+            }
+
+            string[] frow = { "", "", "", famount.ToString() };
+            dataGridView1.Rows[(dataGridView1.Rows.Count) - 1].SetValues(frow);
+
+
         }
 
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
@@ -124,6 +162,10 @@ namespace BillinSoft
 
         private void save()
         {
+
+            excel.Application.Workbooks.Add(true);
+            wrbks = excel.Workbooks;
+
             try
             {
                 wrbk = wrbks.Open("C:\\Program Files (x86)\\WC\\Setup\\bill.xlsm");
@@ -225,6 +267,56 @@ namespace BillinSoft
 
             button3.Hide();
             Process.Start(Path.Combine(Environment.ExpandEnvironmentVariables("%userprofile%"), "Documents") + "\\" + st);
+        }
+
+        private void dataGridView1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            double famount = 0.0;
+
+            for (int i = 0; i < dataGridView1.Rows.Count; i++)
+            {
+                if (i != dataGridView1.Rows.Count - 1)
+                {
+
+                    double q = 0.0;
+                    double r = 0.0;
+
+                    try
+                    {
+
+                        if (dataGridView1.Rows[i].Cells[dataGridView1.Columns["Qty"].Index].Value.ToString() != "")
+                            q = (Convert.ToDouble(dataGridView1.Rows[i].Cells[dataGridView1.Columns["Qty"].Index].Value));
+                        
+                        if (dataGridView1.Rows[i].Cells[dataGridView1.Columns["rate"].Index].Value.ToString() != "")
+                            r = (Convert.ToDouble(dataGridView1.Rows[i].Cells[dataGridView1.Columns["rate"].Index].Value));
+
+                    }
+
+                    catch (Exception ex)
+                    {
+                        if(dataGridView1.Rows.Count!=1 && dataGridView1.Rows.Count!=2)
+                        MessageBox.Show("Please Enter valid qty and rate");
+
+                        dataGridView1.Rows.RemoveAt(i);
+
+                    }
+
+                    dataGridView1.Rows[i].Cells[dataGridView1.Columns["amount"].Index].Value = r * q;
+                    famount += Convert.ToDouble(dataGridView1.Rows[i].Cells[dataGridView1.Columns["amount"].Index].Value);
+
+
+                }
+
+            }
+
+            string[] frow = { "", "", "", famount.ToString() };
+            dataGridView1.Rows[(dataGridView1.Rows.Count) - 1].SetValues(frow);
+
+        }
+
+        private void label12_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
