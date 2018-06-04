@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing; 
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
 using System.Text; 
 using System.Windows.Forms;
 
@@ -16,7 +18,7 @@ namespace BillinSoft
         Microsoft.Office.Interop.Excel.Worksheet wrst = null;
 
         Microsoft.Office.Interop.Excel.Application excel = new Microsoft.Office.Interop.Excel.Application();
-        
+        private bool edit;
 
         public BillingSoft()
         {
@@ -74,6 +76,7 @@ namespace BillinSoft
 
         private void button2_Click(object sender, EventArgs e)
         {
+            if(!edit)      
             save();
             
 
@@ -205,6 +208,23 @@ namespace BillinSoft
             save();
             MessageBox.Show("File is Saved in Documents folder");
 
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            save();
+
+            string st = textBox3.Text + textBox1.Text + ".xlsm";
+
+            if (st == ".xlsm")
+            {
+                st = "temp.xlsm";
+            }
+
+            edit = true;
+
+            button3.Hide();
+            Process.Start(Path.Combine(Environment.ExpandEnvironmentVariables("%userprofile%"), "Documents") + "\\" + st);
         }
     }
 }
