@@ -318,5 +318,15 @@ namespace BillinSoft
         {
 
         }
+
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void aboutUsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Milan - 7435904645 \nPratik - 9537802717 \nYatin - 7575858855");
+        }
     }
 }
