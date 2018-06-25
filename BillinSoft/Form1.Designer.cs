@@ -516,11 +516,13 @@
             this.Controls.Add(this.menuStrip1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip1;
             this.MaximizeBox = false;
             this.Name = "BillingSoft";
             this.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.Text = "BillingSoftware";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.BillingSoft_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.panel1.ResumeLayout(false);

@@ -13,12 +13,15 @@ namespace BillinSoft
     public partial class BillingSoft : Form
     {
 
+        string adr;
+
         Microsoft.Office.Interop.Excel.Workbooks wrbks = null;
         Microsoft.Office.Interop.Excel.Workbook wrbk = null;
         Microsoft.Office.Interop.Excel.Worksheet wrst = null;
 
         Microsoft.Office.Interop.Excel.Application excel = new Microsoft.Office.Interop.Excel.Application();
         private bool edit;
+        private StreamReader fl;
 
         public BillingSoft()
         {
@@ -30,6 +33,19 @@ namespace BillinSoft
             
             textBox2.Text = DateTime.Now.ToString("d/M/yyyy");
 
+            try { 
+                
+            fl = File.OpenText(Path.Combine(Environment.ExpandEnvironmentVariables("%userprofile%"), "Documents") + "\\"+"LastInvoice.txt");
+                
+                int num = int.Parse(fl.ReadLine());
+                num++;
+                textBox1.Text = num.ToString();
+                fl.Close();
+            }
+            catch(Exception ex)
+            {
+                textBox1.Text = "1";
+            }
 
         }
 
@@ -39,6 +55,76 @@ namespace BillinSoft
 
 
         }
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == (Keys.Control | Keys.O))
+            {
+                Process.Start(@Path.Combine(Environment.ExpandEnvironmentVariables("%userprofile%"), "Documents"));
+
+                return true;
+            }
+            if (keyData == (Keys.Control | Keys.P))
+            {
+                adr = textBox4.Text;
+                adr = adr.Replace(System.Environment.NewLine, " ");
+                if (adr.Length > 78)
+                {
+                    MessageBox.Show("Please enter address in 78 letters");
+                    return true;
+                }
+                if(!edit)
+                print();
+                return true;
+            }
+            if (keyData == (Keys.Control | Keys.S))
+            {
+                adr = textBox4.Text;
+                adr = adr.Replace(System.Environment.NewLine, " ");
+                if (adr.Length > 78)
+                {
+                    MessageBox.Show("Please enter address in 78 letters");
+                    return true;
+                }
+
+                if (!edit) { 
+                    save();
+                MessageBox.Show("File is Saved in Documents folder");
+                }
+                return true;
+            }
+            if (keyData == (Keys.Control | Keys.E))
+            {
+
+                adr = textBox4.Text;
+                adr = adr.Replace(System.Environment.NewLine, " ");
+                if (adr.Length > 78)
+                {
+                    MessageBox.Show("Please enter address in 78 letters");
+                    return true;
+                }
+
+                save();
+                edt();
+                return true;
+            }
+
+            if(keyData == (Keys.Control | Keys.N))
+            {
+                save();
+                MessageBox.Show("File is Saved in Documents folder");
+
+                BillingSoft ss = new BillingSoft();
+                ss.Show();
+
+
+                this.Hide();
+
+                return true;
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -112,20 +198,20 @@ namespace BillinSoft
 
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void print()
         {
-            if(!edit)      
-            save();
-            
+            if (!edit)
+                save();
+
 
             string st = textBox3.Text + textBox1.Text + ".xlsm";
 
-            if(st== ".xlsm")
+            if (st == ".xlsm")
             {
                 st = "temp.xlsm";
             }
 
-           
+
             Microsoft.Office.Interop.Excel.Application excelApp = new Microsoft.Office.Interop.Excel.Application();
 
             Microsoft.Office.Interop.Excel.Workbook wb = excelApp.Workbooks.Open(
@@ -148,7 +234,7 @@ namespace BillinSoft
         Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing,
         Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing,
         Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
-            
+
 
             if (!userDidntCancel)
             {
@@ -158,14 +244,30 @@ namespace BillinSoft
 
             excelApp.Quit();
 
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            adr = textBox4.Text;
+            adr = adr.Replace(System.Environment.NewLine, " ");
+            if (adr.Length > 78)
+            {
+                MessageBox.Show("Please enter address in 78 letters");
+                return;
+            }
+
+            print();            
         }
 
         private void save()
         {
+            File.WriteAllText(Path.Combine(Environment.ExpandEnvironmentVariables("%userprofile%"), "Documents") + "\\"+"LastInvoice.txt",textBox1.Text);
+
 
             excel.Application.Workbooks.Add(true);
             wrbks = excel.Workbooks;
-
+            int brow = 31;
             try
             {
                 wrbk = wrbks.Open("C:\\Program Files (x86)\\WC\\Setup\\bill.xlsm");
@@ -178,10 +280,27 @@ namespace BillinSoft
                 return;
             }
 
+            
             for (int rows = 0; rows < dataGridView1.Rows.Count - 1; rows++)
             {
                 string str = 'A' + (rows + 11).ToString();
                 wrst.Range[str].Value = (rows+1).ToString();
+
+                str = 'B' + (rows + 11).ToString();
+                int h = int.Parse((dataGridView1.Rows[rows].Cells[0].Value.ToString().Length / 40).ToString());
+               // MessageBox.Show(h.ToString());
+                wrst.Range[str].RowHeight = ((18) * (h+1)); 
+
+                for(int y = 0; y < h; y++)
+                {
+                    wrst.Range['B' + brow.ToString()].RowHeight = 0;
+                    brow--;
+                }
+                if(rows+11>brow)
+                {
+                    MessageBox.Show("too much inputs");
+                    return;
+                }
 
                 str = 'B' + (rows + 11).ToString();
                 wrst.Range[str].Value = dataGridView1.Rows[rows].Cells[0].Value.ToString();
@@ -205,8 +324,6 @@ namespace BillinSoft
 
             str1 = "E6";
 
-            string adr = textBox4.Text;
-            adr = adr.Replace(System.Environment.NewLine," ");
             Console.Write(adr);
             wrst.Range[str1].Value = adr;
 
@@ -247,15 +364,21 @@ namespace BillinSoft
 
         private void button3_Click(object sender, EventArgs e)
         {
+            adr = textBox4.Text;
+            adr = adr.Replace(System.Environment.NewLine, " ");
+            if (adr.Length > 78)
+            {
+                MessageBox.Show("Please enter address in 78 letters");
+                return;
+            }
+
             save();
             MessageBox.Show("File is Saved in Documents folder");
 
         }
 
-        private void button4_Click(object sender, EventArgs e)
+        private void edt()
         {
-            save();
-
             string st = textBox3.Text + textBox1.Text + ".xlsm";
 
             if (st == ".xlsm")
@@ -266,7 +389,24 @@ namespace BillinSoft
             edit = true;
 
             button3.Hide();
+            button4.Hide();
             Process.Start(Path.Combine(Environment.ExpandEnvironmentVariables("%userprofile%"), "Documents") + "\\" + st);
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+
+             adr = textBox4.Text;
+            adr = adr.Replace(System.Environment.NewLine, " ");
+            if (adr.Length > 78)
+            {
+                MessageBox.Show("Please enter address in 78 letters");
+                return;
+            }
+            
+            save();
+
+            edt();
         }
 
         private void dataGridView1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
@@ -327,6 +467,12 @@ namespace BillinSoft
         private void aboutUsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MessageBox.Show("Milan - 7435904645 \nPratik - 9537802717 \nYatin - 7575858855");
+        }
+
+        private void BillingSoft_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Application.Exit();
+
         }
     }
 }
